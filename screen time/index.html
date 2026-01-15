@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen Time</title>
+
+<style>
+/* ===== BASE ===== */
+* {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        system-ui, Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: #000;
+    color: #fff;
+}
+
+/* ===== NAV ===== */
+.nav {
+    position: fixed;
+    top: 0;
+    height: 56px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 600;
+}
+.cancel {
+    position: absolute;
+    right: 16px;
+    color: #0a84ff;
+    font-weight: 400;
+}
+
+/* ===== MAIN ===== */
+.main {
+    position: absolute;
+    top: 140px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 28px;
+}
+
+/* ===== DOTS ===== */
+.dots {
+    display: flex;
+    gap: 18px;
+}
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #8e8e93;
+}
+.dot.filled {
+    background: #fff;
+    border-color: #fff;
+}
+
+/* ===== SHAKE ===== */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+    100% { transform: translateX(0); }
+}
+.shake {
+    animation: shake 0.35s;
+}
+
+/* ===== KEYPAD (⅓ SCREEN) ===== */
+.keypad {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 84px);
+    grid-template-rows: repeat(4, 50px);
+    gap: 10px;
+    justify-content: center;
+}
+
+/* ===== KEYS ===== */
+.key {
+    width: 84px;
+    height: 50px;
+    background: rgb(112,112,114);
+    border-radius: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 6px;
+    user-select: none;
+}
+.key:active {
+    background: rgb(132,132,134);
+}
+
+.num {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 22px;
+}
+.letters {
+    font-size: 9px;
+    letter-spacing: 1.4px;
+    margin-top: 4px;
+    opacity: 0.9;
+}
+
+.empty {
+    background: transparent;
+}
+
+.delete {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.delete svg {
+    width: 26px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 1.8;
+}
+
+/* ===== ADMIN PANEL (iOS SHEET) ===== */
+.admin {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(20px);
+    display: none;
+    align-items: flex-end;
+}
+
+.admin-sheet {
+    width: 100%;
+    max-height: 70%;
+    background: #1c1c1e;
+    border-radius: 18px 18px 0 0;
+    padding: 16px;
+}
+
+.admin-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+#passList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 45vh;
+    overflow-y: auto;
+}
+#passList li {
+    padding: 12px;
+    font-size: 15px;
+    border-bottom: 1px solid #2c2c2e;
+}
+
+.close {
+    margin-top: 12px;
+    height: 44px;
+    border-radius: 12px;
+    background: #0a84ff;
+    color: #fff;
+    border: none;
+    font-size: 17px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+    <div class="cancel">Cancel</div>
+</div>
+
+<div class="main">
+    <div class="title">Enter Screen Time Passcode</div>
+    <div class="dots" id="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+
+<div class="keypad">
+    <div class="key" onclick="press(1)"><div class="num">1</div></div>
+    <div class="key" onclick="press(2)"><div class="num">2</div><div class="letters">ABC</div></div>
+    <div class="key" onclick="press(3)"><div class="num">3</div><div class="letters">DEF</div></div>
+
+    <div class="key" onclick="press(4)"><div class="num">4</div><div class="letters">GHI</div></div>
+    <div class="key" onclick="press(5)"><div class="num">5</div><div class="letters">JKL</div></div>
+    <div class="key" onclick="press(6)"><div class="num">6</div><div class="letters">MNO</div></div>
+
+    <div class="key" onclick="press(7)"><div class="num">7</div><div class="letters">PQRS</div></div>
+    <div class="key" onclick="press(8)"><div class="num">8</div><div class="letters">TUV</div></div>
+    <div class="key" onclick="press(9)"><div class="num">9</div><div class="letters">WXYZ</div></div>
+
+    <div class="empty"></div>
+    <div class="key" onclick="press(0)"><div class="num">0</div></div>
+    <div class="delete" onclick="del()">
+        <svg viewBox="0 0 24 16" fill="none">
+            <path d="M7 1L1 8L7 15H23V1H7Z"/>
+            <path d="M17 5L12 10M12 5L17 10"/>
+        </svg>
+    </div>
+</div>
+
+<div class="admin" id="admin">
+    <div class="admin-sheet">
+        <div class="admin-title">Admin Panel</div>
+        <ul id="passList"></ul>
+        <button class="close" onclick="closeAdmin()">Done</button>
+    </div>
+</div>
+
+<script>
+let input = "";
+let attempts = [];
+
+const dots = document.querySelectorAll(".dot");
+const wrap = document.getElementById("dots");
+const admin = document.getElementById("admin");
+const passList = document.getElementById("passList");
+
+function press(n) {
+    if (input.length >= 4) return;
+    input += n;
+    update();
+
+    if (input.length === 4) {
+        setTimeout(check, 200);
+    }
+}
+
+function del() {
+    input = input.slice(0, -1);
+    update();
+}
+
+function update() {
+    dots.forEach((d,i)=>d.classList.toggle("filled", i < input.length));
+}
+
+function check() {
+    attempts.push(input);
+    if (input === "1234") showAdmin();
+    else wrong();
+}
+
+function wrong() {
+    wrap.classList.add("shake");
+    setTimeout(()=>wrap.classList.remove("shake"),350);
+    input="";
+    update();
+}
+
+function showAdmin() {
+    passList.innerHTML="";
+    attempts.forEach((p,i)=>{
+        const li=document.createElement("li");
+        li.textContent=`Attempt ${i+1}: ${p}`;
+        passList.appendChild(li);
+    });
+    admin.style.display="flex";
+    input="";
+    update();
+}
+
+function closeAdmin() {
+    admin.style.display="none";
+}
+</script>
+
+</body>
+</html>
